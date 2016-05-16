@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="NewPageOldViewModel.OldViewModel">
+  <StackLayout>
+    <Label Text="{Binding Name}" VerticalOptions="Center" HorizontalOptions="Center" />
+    <Label Text="NEW PAGE OLD VIEWMODEL" VerticalOptions="Center" HorizontalOptions="Center" />
+
+    <Button Text="RETURN TO THE MAIN PAGE"
+              HorizontalOptions="Center"
+              VerticalOptions="CenterAndExpand"
+              Command="{Binding DeviceSelected}"/>
+  </StackLayout>
+</ContentPage>

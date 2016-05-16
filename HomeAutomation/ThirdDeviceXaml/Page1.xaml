@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:ThirdDeviceXaml;assembly=ThirdDeviceXaml"
+             x:Class="ThirdDeviceXaml.Page1">
+  <StackLayout BackgroundColor="{Binding Color}">
+    <Label Text="{Binding Name}" />
+
+    <Button Text="Device 3: Click Me!"
+            HorizontalOptions="Center"
+            VerticalOptions="CenterAndExpand"
+            Command="{Binding DeviceSelected}"/>
+  </StackLayout>
+</ContentPage>

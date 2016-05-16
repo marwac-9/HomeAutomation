@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DeviceList.DeviceListView">
+  <StackLayout>
+    <Label Text="{Binding Name}" />
+
+    <Button Text="Click Me NEW ITEM!"
+            HorizontalOptions="Center"
+            VerticalOptions="CenterAndExpand"
+            Command="{Binding DeviceSelected}"/>
+    <ListView ItemsSource="{Binding Views}"
+              HasUnevenRows="true"
+              BackgroundColor="White">
+      <ListView.ItemTemplate>
+        <DataTemplate>
+          <ViewCell>
+            <ViewCell.View Height ="{Binding ItemHeight}">
+              <ContentView Content="{Binding ViewComponent}" />
+            </ViewCell.View>
+          </ViewCell>
+        </DataTemplate>
+      </ListView.ItemTemplate>
+    </ListView>
+  </StackLayout>
+</ContentPage>

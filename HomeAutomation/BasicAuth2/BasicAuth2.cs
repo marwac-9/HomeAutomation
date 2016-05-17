@@ -22,6 +22,7 @@ namespace BasicAuth2
         HttpClient client;
         ODataClient oDataClient;
         public ICommand GetAvaiableDevicesCmd;
+        
 
         public View ViewComponent
         {
@@ -30,18 +31,39 @@ namespace BasicAuth2
 
         public BasicAuth2()
         {
+            
             InitializeCommands();
             SetUpUI();
-
+            V3Adapter.Reference();
             var handler = new HttpClientHandler();
             handler.Credentials = new NetworkCredential(Constants.Username, Constants.Password);
             
             client = new HttpClient(handler);
-            //client = new HttpClient();
+            client = new HttpClient();
+
             client.MaxResponseContentBufferSize = 256000;
             //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Constants.Credentials);
 
-            ODataClientSettings settings = new ODataClientSettings(Constants.ODataUrl, handler.Credentials);
+            ODataClientSettings settings = new ODataClientSettings(Constants.ODataUrl); // new ODataClientSettings();
+            //ODataClientSettings constructor taking in url and credentials is broken, no authentication in header and when inserting authentication we get collection modified
+            //Constructor with url only can be used and credentials have to be set manually somewhere like in BeforeRequest
+            //Constructor with no parameters can be used and then uri and credentials can be set after on settings object, we don't need to insert authentication
+            //settings.BaseUri = new Uri(Constants.ODataUrl);
+            //settings.Credentials = new NetworkCredential(Constants.Username, Constants.Password);
+            
+            settings.OnApplyClientHandler = h =>
+            {
+                h.PreAuthenticate = true;
+            };
+            settings.BeforeRequest = r =>
+            {
+                r.Headers.Authorization = new AuthenticationHeaderValue("Basic", Constants.Credentials);
+            };
+            settings.OnTrace = (x, y) => 
+            {
+                string result = string.Format(x, y);
+            };
+
             oDataClient = new ODataClient(settings);
 
         }
@@ -65,11 +87,20 @@ namespace BasicAuth2
             GetAvaiableDevicesCmd = new Command(
                        async execute =>
                        {
-                           var devices = await oDataClient.For("AvailableDevices").FindEntriesAsync();
-                           foreach (var device in devices)
+                           try
                            {
-                               string test = (string)device["AvailableDevices"];
+                               var devices = await oDataClient.For("AvailableDevices").FindEntriesAsync();
+                               foreach (var device in devices)
+                               {
+                                   string test = (string)device["AvailableDevices"];
+                               }
                            }
+                           catch (Exception e)
+                           {
+
+                               throw;
+                           }
+                          
                        },
                        canExecute => true);
         }

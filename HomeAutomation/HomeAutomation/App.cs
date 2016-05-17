@@ -14,6 +14,7 @@ namespace HomeAutomation
 
         public App()
         {
+
             // Handle when your app starts
             var configuration = new ContainerConfiguration().WithAssembly(typeof(App).GetTypeInfo().Assembly);
             configuration.WithAssembly(typeof(ExtendedOperations.Mod).GetTypeInfo().Assembly);

@@ -22,6 +22,7 @@ namespace HomeAutomation
 
 
             configuration.WithAssembly(typeof(DeviceList.DeviceListView).GetTypeInfo().Assembly);
+            configuration.WithAssembly(typeof(BasicAuth2.BasicAuth2).GetTypeInfo().Assembly);
             configuration.WithAssembly(typeof(FirstDeviceItem.DeviceItemView).GetTypeInfo().Assembly);
             configuration.WithAssembly(typeof(SecondDeviceItem.DeviceItemView).GetTypeInfo().Assembly);
             configuration.WithAssembly(typeof(ThirdDeviceXaml.DeviceItemViewModel).GetTypeInfo().Assembly);

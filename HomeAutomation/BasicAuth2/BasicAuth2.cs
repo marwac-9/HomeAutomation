@@ -1,27 +1,141 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
-
+using Simple.OData.Client;
+using Interfaces;
 using Xamarin.Forms;
+using System.Threading.Tasks;
+using System.IO;
+using System.Net;
+using System.Windows.Input;
+
+
 
 namespace BasicAuth2
 {
-    public class BasicAuth2 : ContentPage
+    [ViewComponent(1,0,ViewComponentCategory.Device)]
+    public class BasicAuth2 : ContentPage, IViewComponent
     {
+        HttpClient client;
+        ODataClient oDataClient;
+        public ICommand GetAvaiableDevicesCmd;
+
+        public View ViewComponent
+        {
+            get { return Content; }
+        }
+
         public BasicAuth2()
+        {
+            InitializeCommands();
+            SetUpUI();
+
+            var handler = new HttpClientHandler();
+            handler.Credentials = new NetworkCredential(Constants.Username, Constants.Password);
+            
+            client = new HttpClient(handler);
+            //client = new HttpClient();
+            client.MaxResponseContentBufferSize = 256000;
+            //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Constants.Credentials);
+
+            ODataClientSettings settings = new ODataClientSettings(Constants.ODataUrl, handler.Credentials);
+            oDataClient = new ODataClient(settings);
+
+        }
+
+        private void SetUpUI()
         {
             var button = new Button
             {
-                Text = "Click Me!",
+                Text = "Get AvailableDevices",
                 VerticalOptions = LayoutOptions.CenterAndExpand,
                 HorizontalOptions = LayoutOptions.CenterAndExpand,
             };
 
-            int clicked = 0;
-            button.Clicked += (s, e) => button.Text = "Clicked: " + clicked++;
+            button.Command = GetAvaiableDevicesCmd;
 
             Content = button;
+        }
+
+        void InitializeCommands()
+        {
+            GetAvaiableDevicesCmd = new Command(
+                       async execute =>
+                       {
+                           var devices = await oDataClient.For("AvailableDevices").FindEntriesAsync();
+                           foreach (var device in devices)
+                           {
+                               string test = (string)device["AvailableDevices"];
+                           }
+                       },
+                       canExecute => true);
+        }
+
+        #region Device Setup
+        public async Task GetAvaiableDevices()
+        {
+            //var devices = await oDataClient.FindEntriesAsync("AvailableDevices?$filter=Title eq 'AvailableDevices'");
+            var devices = await oDataClient.For("AvailableDevices").Filter("Title eq 'AvailableDevices'").FindEntriesAsync();
+        }
+
+        public async Task ProvisionAvaiableDevice(string avaiableDevice)
+        {
+            string json = "test";
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            await client.PostAsync(Constants.RestUrl + "rest/system/provisionDevice?locationId=" + Constants.Location + "&availableDeviceId="+ avaiableDevice, content);
+        }
+        #endregion
+
+        #region Devices
+        public async Task GetDevicesAndFeaturesForLocation()
+        {
+            var devicesAndFeatures = await oDataClient.For("Locations('" + Constants.Location + "')/Devices").Expand("Features").FindEntriesAsync();
+        }
+
+        #endregion
+
+        #region Energy
+        public async Task BinarySwitch(string device)
+        {
+            var binarySwitch = await oDataClient.FindEntriesAsync("BinarySwitches('" + device + "')");
+        }
+        #endregion
+
+        #region Location
+        public async Task GetLocations()
+        {
+            var locations = await oDataClient.FindEntriesAsync("Locations");
+        }
+
+        #endregion
+
+        #region Products
+        public async Task GetProductsAndFeatures()
+        {
+            var productsAndFeatures = await oDataClient.For("Locations('" + Constants.Location + "')/Products").Expand("Features").FindEntriesAsync();
+        }
+
+        public View GetComponent()
+        {
+            return Content;
+        }
+        #endregion
+
+    }
+
+    public class MyContent : HttpContent
+    {
+        protected override Task SerializeToStreamAsync(Stream stream, TransportContext context)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override bool TryComputeLength(out long length)
+        {
+            throw new NotImplementedException();
         }
     }
 }

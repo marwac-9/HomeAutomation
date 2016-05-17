@@ -22,16 +22,22 @@ namespace BasicAuth2
         HttpClient client;
         ODataClient oDataClient;
         public ICommand GetAvaiableDevicesCmd;
-        
+        public ICommand GetDevicesAndFeaturesForLocationCmd;
+        public ICommand GetLocationsCmd;
+        public ICommand GetProductsAndFeaturesCmd;
+
 
         public View ViewComponent
         {
             get { return Content; }
         }
+        public View GetComponent()
+        {
+            return Content;
+        }
 
         public BasicAuth2()
         {
-            
             InitializeCommands();
             SetUpUI();
             V3Adapter.Reference();
@@ -103,6 +109,54 @@ namespace BasicAuth2
                           
                        },
                        canExecute => true);
+
+            GetDevicesAndFeaturesForLocationCmd = new Command(
+                       async execute =>
+                       {
+                           try
+                           {
+                               var devicesAndFeatures = await oDataClient.For("Locations('" + Constants.Location + "')/Devices").Expand("Features").FindEntriesAsync();
+                           }
+                           catch (Exception e)
+                           {
+
+                               throw;
+                           }
+
+                       },
+                       canExecute => true);
+
+            GetLocationsCmd = new Command(
+                       async execute =>
+                       {
+                           try
+                           {
+                               var locations = await oDataClient.FindEntriesAsync("Locations");
+                           }
+                           catch (Exception e)
+                           {
+
+                               throw;
+                           }
+
+                       },
+                       canExecute => true);
+
+            GetProductsAndFeaturesCmd = new Command(
+                       async execute =>
+                       {
+                           try
+                           {
+                               var productsAndFeatures = await oDataClient.For("Locations('" + Constants.Location + "')/Products").Expand("Features").FindEntriesAsync();
+                           }
+                           catch (Exception e)
+                           {
+
+                               throw;
+                           }
+
+                       },
+                       canExecute => true);
         }
 
         #region Device Setup
@@ -147,11 +201,6 @@ namespace BasicAuth2
         public async Task GetProductsAndFeatures()
         {
             var productsAndFeatures = await oDataClient.For("Locations('" + Constants.Location + "')/Products").Expand("Features").FindEntriesAsync();
-        }
-
-        public View GetComponent()
-        {
-            return Content;
         }
         #endregion
 
